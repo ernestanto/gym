@@ -68,7 +68,7 @@ const RegistrationPage = () => {
 
 
 const cardData = [
-  { title: "Registration ", path: "/form" },
+  { title: "Registration of clients ", path: "/form" },
   { title: "Clients page", path:"/clients" },
   { title: "GymEquipments", path:"/gymequipments" },
   { title: "PT clients", path:"/ptclients" },
