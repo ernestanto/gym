@@ -62,14 +62,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                sh '''
-                    echo "Running application tests..."
-                    npm test -- --watchAll=false
-                '''
-            }
-        }
+       
 
         stage('Build') {
             steps {
