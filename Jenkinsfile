@@ -1,19 +1,15 @@
 pipeline {
-
     agent any
 
     options {
         timestamps()
         disableConcurrentBuilds()
         skipDefaultCheckout()
+
         buildDiscarder(logRotator(
             numToKeepStr: '10',
             daysToKeepStr: '30'
         ))
-    }
-
-    environment {
-        NODE_ENV = 'production'
     }
 
     stages {
@@ -26,11 +22,14 @@ pipeline {
                     echo "===================================="
                     echo "GitHub Repository Information"
                     echo "===================================="
+
                     git remote -v
-                    echo "Branch:"
-                    git branch --show-current
+
                     echo "Commit:"
                     git log -1 --oneline
+
+                    echo "Files:"
+                    ls -la
                 '''
             }
         }
@@ -41,6 +40,7 @@ pipeline {
                     echo "===================================="
                     echo "Environment Information"
                     echo "===================================="
+
                     echo "Node version:"
                     node --version
 
@@ -56,18 +56,22 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    echo "Installing application dependencies..."
+                    echo "===================================="
+                    echo "Installing Dependencies"
+                    echo "===================================="
+
                     npm ci
                 '''
             }
         }
 
-       
-
         stage('Build') {
             steps {
                 sh '''
-                    echo "Building Gym application..."
+                    echo "===================================="
+                    echo "Building React Application"
+                    echo "===================================="
+
                     npm run build
                 '''
             }
@@ -76,23 +80,35 @@ pipeline {
         stage('Verify Build') {
             steps {
                 sh '''
-                    echo "Checking generated build files..."
-                    test -d dist || test -d build
-                    echo "Application build completed successfully."
+                    echo "===================================="
+                    echo "Verifying Build"
+                    echo "===================================="
+
+                    if [ -d "dist" ]; then
+                        echo "dist directory found."
+                        ls -lh dist
+                    elif [ -d "build" ]; then
+                        echo "build directory found."
+                        ls -lh build
+                    else
+                        echo "ERROR: Build directory not found!"
+                        exit 1
+                    fi
+
+                    echo "Build verification successful."
                 '''
             }
         }
     }
 
     post {
-
         success {
             echo '''
             ==========================================
             BUILD SUCCESSFUL
             ==========================================
-            GitHub commit successfully processed
-            by Jenkins.
+            GitHub code successfully built by Jenkins.
+            ==========================================
             '''
         }
 
@@ -102,6 +118,7 @@ pipeline {
             BUILD FAILED
             ==========================================
             Check the Jenkins console output.
+            ==========================================
             '''
         }
 
